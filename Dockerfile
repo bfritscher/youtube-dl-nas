@@ -10,11 +10,11 @@ RUN echo "deb [check-valid-until=no] http://cdn-fastly.deb.debian.org/debian jes
 RUN echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie-backports main" > /etc/apt/sources.list.d/jessie-backports.list
 RUN sed -i '/deb http:\/\/deb.debian.org\/debian jessie-updates main/d' /etc/apt/sources.list
 RUN apt-get -o Acquire::Check-Valid-Until=false update
-RUN apt-get install -y libav-tools vim dos2unix && \
+RUN apt-get install -y ffmpeg vim dos2unix && \
     rm -rf /var/lib/apt/lists/*
 
 
-COPY /subber /usr/bin/subber 
+COPY /subber /usr/bin/subber
 COPY /run.sh /
 RUN chmod +x /usr/bin/subber && \
      dos2unix /usr/bin/subber && \
@@ -22,7 +22,7 @@ RUN chmod +x /usr/bin/subber && \
      chmod +x /run.sh && \
      dos2unix /run.sh
 
-RUN pip install -U youtube-dl
+RUN python -m pip install -U yt-dlp
 
 EXPOSE 8080
 

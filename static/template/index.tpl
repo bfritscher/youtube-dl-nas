@@ -45,7 +45,7 @@
                                     <option>240p</option>
                                     <option>144p</option>
                                     <option>audio-m4a</option>
-                                    <option>audio-mp3</option>
+                                    <option selected>audio-mp3</option>
                                 </select>
                             </span>
                             <input name="url" id="url" type="url" class="form-control" placeholder="URL" >
@@ -83,7 +83,6 @@
                 <div class="inner">
                     <p>Web frontend for <a href="https://github.com/hyeonsangjeon/youtube-dl-nas">youtube-dl-nas</a>, by @Hyeon Sang</a>.</p>
                     <p>latest Ver 1.0503</p>
-                    <a href="https://www.youtube.com/watch?v=s9mO5q6GiAc">https://www.youtube.com/watch?v=s9mO5q6GiAc</a>
                     <p></p>
                 </div>
             </div>

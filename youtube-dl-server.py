@@ -20,7 +20,8 @@ proxy = ""
 
 @get('/')
 def dl_queue_list():
-    return template("./static/template/login.tpl", msg="")
+    redirect('/youtube-dl')
+    #return template("./static/template/login.tpl", msg="")
 
 
 @get('/login', method='POST')
@@ -39,17 +40,18 @@ def dl_queue_login():
 
 @get('/youtube-dl')
 def dl_queue_list():
-    with open('Auth.json') as data_file:
-        data = json.load(data_file)
+    return template("./static/template/index.tpl", userNm="")
+    #with open('Auth.json') as data_file:
+    #    data = json.load(data_file)
 
-    userNm = request.get_cookie("account", secret="34y823423b23b4234#$@$@#be")
-    print("CHK : ", userNm)
+    #userNm = request.get_cookie("account", secret="34y823423b23b4234#$@$@#be")
+    #print("CHK : ", userNm)
 
-    if (userNm == data["MY_ID"]):
-        return template("./static/template/index.tpl", userNm=userNm)
-    else:
-        print("no cookie or fail login")
-        redirect("/")
+    #if (userNm == data["MY_ID"]):
+    #    return template("./static/template/index.tpl", userNm=userNm)
+    #else:
+    #    print("no cookie or fail login")
+    #    redirect("/")
 
 
 @get('/websocket', apply=[websocket])
@@ -99,17 +101,20 @@ def q_put_rest():
     url = request.json.get("url")
     resolution = request.json.get("resolution")
 
-    with open('Auth.json') as data_file:
-        data = json.load(data_file)  # Auth info, when docker run making file
-        req_id = request.json.get("id")
-        req_pw = request.json.get("pw")
+    # with open('Auth.json') as data_file:
+    #     data = json.load(data_file)  # Auth info, when docker run making file
+    #     req_id = request.json.get("id")
+    #     req_pw = request.json.get("pw")
 
-        if (req_id != data["MY_ID"] or req_pw != data["MY_PW"]):
-            return {"success": False, "msg": "Invalid password or account."}
-        else:
-            box = (url, "", resolution, "api")
-            dl_q.put(box)
-            return {"success": True, "msg": 'download has started', "Remaining downloading count": json.dumps(dl_q.qsize()) }
+    #     if (req_id != data["MY_ID"] or req_pw != data["MY_PW"]):
+    #         return {"success": False, "msg": "Invalid password or account."}
+    #     else:
+    #         box = (url, "", resolution, "api")
+    #         dl_q.put(box)
+    #         return {"success": True, "msg": 'download has started', "Remaining downloading count": json.dumps(dl_q.qsize()) }
+    box = (url, "", resolution, "api")
+    dl_q.put(box)
+    return {"success": True, "msg": 'download has started', "Remaining downloading count": json.dumps(dl_q.qsize()) }
 
 
 def dl_worker():
@@ -124,15 +129,15 @@ def dl_worker():
 
 def build_youtube_dl_cmd(url):
     if (url[2] == "best"):
-        cmd = ["youtube-dl", "--proxy", proxy, "-o", "./downfolder/.incomplete/%(title)s.%(ext)s", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]", "--exec", "touch {} && mv {} ./downfolder/", "--merge-output-format", "mp4", url[0]]
+        cmd = ["yt-dlp", "--proxy", proxy, "-o", "./downfolder/.incomplete/%(title)s.%(ext)s", "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]", "--exec", "touch {} && mv {} ./downfolder/", "--merge-output-format", "mp4", url[0]]
     # url[2] == "audio" for download_rest()
     elif (url[2] == "audio-m4a" or url[2] == "audio"):
-        cmd = ["youtube-dl", "--proxy", proxy, "-o", "./downfolder/.incomplete/%(title)s.%(ext)s", "-f", "bestaudio[ext=m4a]", "--exec", "touch {} && mv {} ./downfolder/", url[0]]
+        cmd = ["yt-dlp", "--proxy", proxy, "-o", "./downfolder/.incomplete/%(title)s.%(ext)s", "-f", "bestaudio[ext=m4a]", "--exec", "touch {} && mv {} ./downfolder/", url[0]]
     elif (url[2] == "audio-mp3"):
-        cmd = ["youtube-dl", "--proxy", proxy, "-o", "./downfolder/.incomplete/%(title)s.%(ext)s", "-f", "bestaudio[ext=m4a]", "-x", "--audio-format", "mp3", "--exec", "touch {} && mv {} ./downfolder/", url[0]]
+        cmd = ["yt-dlp", "--proxy", proxy, "-o", "./downfolder/.incomplete/%(title)s.%(ext)s", "-f", "bestaudio[ext=m4a]", "-x", "--audio-format", "mp3", "--exec", "touch {} && mv {} ./downfolder/", url[0]]
     else:
         resolution = url[2][:-1]
-        cmd = ["youtube-dl", "--proxy", proxy, "-o", "./downfolder/.incomplete/%(title)s.%(ext)s", "-f", "bestvideo[height<="+resolution+"][ext=mp4]+bestaudio[ext=m4a]", "--exec", "touch {} && mv {} ./downfolder/",  url[0]]
+        cmd = ["yt-dlp", "--proxy", proxy, "-o", "./downfolder/.incomplete/%(title)s.%(ext)s", "-f", "bestvideo[height<="+resolution+"][ext=mp4]+bestaudio[ext=m4a]", "--exec", "touch {} && mv {} ./downfolder/",  url[0]]
     print (" ".join(cmd))
     return cmd
 
